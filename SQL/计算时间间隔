@@ -33,10 +33,7 @@ BEGIN
 	    SELECT @sDiffText=@sDiffText+CAST(@iMin AS NVARCHAR(10))+'分'
 	END
 
-	IF (@iSec>0)
-	BEGIN
-	    SELECT @sDiffText=@sDiffText+CAST(@iSec AS NVARCHAR(10))+'秒'
-	END
+	SELECT @sDiffText=@sDiffText+CAST(@iSec AS NVARCHAR(10))+'秒'
 
 	RETURN @sDiffText
 END
