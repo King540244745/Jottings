@@ -1,0 +1,42 @@
+
+IF OBJECT_ID('fnMESGetDiffTimeStr') IS NOT NULL
+BEGIN
+	DROP FUNCTION fnMESGetDiffTimeStr
+END
+GO
+
+CREATE FUNCTION fnMESGetDiffTimeStr
+(
+@tStartTime DATETIME
+,@tEndTIme DATETIME
+)
+RETURNS NVARCHAR(50)
+AS
+BEGIN
+	DECLARE @sDiffText NVARCHAR(50)=''
+	,@iDay INT ,@iHour INT ,@iMin INT ,@iSec INT
+
+	SELECT @iDay=DATEDIFF(DAY,@tStartTime,@tEndTIme),@iHour=DATEDIFF(HOUR,@tStartTime,@tEndTIme)%24,@iMin=DATEDIFF(MINUTE,@tStartTime,@tEndTIme)%60,@iSec=DATEDIFF(SECOND,@tStartTime,@tEndTIme)%60
+	
+	IF (@iDay>0)
+	BEGIN
+	    SELECT @sDiffText=@sDiffText+CAST(@iDay AS NVARCHAR(10))+'天'
+	END
+
+	IF (@iHour>0)
+	BEGIN
+	    SELECT @sDiffText=@sDiffText+CAST(@iHour AS NVARCHAR(10))+'时'
+	END
+
+	IF (@iMin>0)
+	BEGIN
+	    SELECT @sDiffText=@sDiffText+CAST(@iMin AS NVARCHAR(10))+'分'
+	END
+
+	IF (@iSec>0)
+	BEGIN
+	    SELECT @sDiffText=@sDiffText+CAST(@iSec AS NVARCHAR(10))+'秒'
+	END
+
+	RETURN @sDiffText
+END
