@@ -1,0 +1,38 @@
+IF OBJECT_ID('fnISNUMERIC') IS NOT NULL
+BEGIN
+    DROP FUNCTION fnISNUMERIC
+END
+GO
+
+CREATE FUNCTION fnISNUMERIC
+(
+@sStr NVARCHAR(200)
+)
+RETURNS BIT
+AS
+BEGIN
+    
+	DECLARE @sTopStr NVARCHAR(20),@bIs BIT
+	SELECT @bIs=0
+
+	IF (ISNUMERIC(@sStr)=1)
+	BEGIN
+		SET @sTopStr=SUBSTRING(@sStr,1,1)
+
+		IF (@sTopStr='-' OR @sTopStr='+')
+		BEGIN
+			SET @sStr=RIGHT(@sStr,LEN(@sStr)-1)
+		END
+
+		IF (LEN(@sStr)>0)
+		BEGIN
+			IF (PATINDEX('[^0-9|.]%',@sStr)=0)
+			BEGIN
+				SELECT @bIs=1
+			END
+		END 
+	END
+	RETURN @bIs
+
+END
+GO
