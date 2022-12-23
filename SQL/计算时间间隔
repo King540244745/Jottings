@@ -1,7 +1,10 @@
+SET QUOTED_IDENTIFIER ON
+SET ANSI_NULLS ON
+GO
 
 IF OBJECT_ID('fnMESGetDiffTimeStr') IS NOT NULL
 BEGIN
-	DROP FUNCTION fnMESGetDiffTimeStr
+    DROP FUNCTION dbo.fnMESGetDiffTimeStr
 END
 GO
 
@@ -33,7 +36,11 @@ BEGIN
 	    SELECT @sDiffText=@sDiffText+CAST(@iMin AS NVARCHAR(10))+'分'
 	END
 
-	SELECT @sDiffText=@sDiffText+CAST(@iSec AS NVARCHAR(10))+'秒'
+	IF (LEN(@sDiffText)=0 OR @iSec>0)
+	BEGIN
+	    SELECT @sDiffText=@sDiffText+CAST(@iSec AS NVARCHAR(10))+'秒'
+	END
 
 	RETURN @sDiffText
 END
+GO
