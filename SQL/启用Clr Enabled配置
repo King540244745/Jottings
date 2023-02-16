@@ -5,7 +5,7 @@ go
 reconfigure;
 exec sp_configure 'show advanced options', '1';
 GO 
-ALTER DATABASE hsdyeingerp_Dev SET TRUSTWORTHY on;
+ALTER DATABASE DataName SET TRUSTWORTHY on;
 GO
 exec sp_changedbowner 'sa'
 GO
