@@ -1,0 +1,47 @@
+DECLARE @tbOldTable TABLE
+(iIden INT NOT NULL PRIMARY KEY
+,sBillNo NVARCHAR(20) NOT NULL
+,sMaterialNo NVARCHAR(20) NOT NULL
+,nQty DECIMAL(19,2) NOT NULL);
+DECLARE @tbNewTable TABLE
+(iIden INT NOT NULL PRIMARY KEY
+,sBillNo NVARCHAR(20) NOT NULL
+,sMaterialNo NVARCHAR(20) NOT NULL
+,nQty DECIMAL(19,2) NOT NULL);
+
+INSERT INTO @tbOldTable
+(iIden,sBillNo,sMaterialNo,nQty)
+VALUES(1,'A01','88701',11.12)
+,(2,'A01','88702',22.12)
+,(3,'A01','88703',33.12)
+,(4,'A02','88704',44.12)
+,(5,'A02','88705',55.12)
+,(6,'A02','88706',66.12)
+,(7,'A03','88704',77.12)
+,(8,'A03','88705',88.12)
+,(9,'A03','88706',99.12);
+INSERT INTO @tbNewTable
+(iIden,sBillNo,sMaterialNo,nQty)
+VALUES(7,'Z01','R8701',1000)
+,(8,'Z01','R8709',2000)
+,(11,'Z03','R8732',3000)
+,(12,'Z04','R8711',3000);
+
+
+MERGE @tbNewTable AS t--目标表
+USING @tbOldTable AS f--源表
+ON f.iIden=t.iIden
+WHEN MATCHED THEN--存在ID相同的情况
+UPDATE SET t.sBillNo=f.sBillNo,t.sMaterialNo=f.sMaterialNo,t.nQty=f.nQty
+WHEN NOT MATCHED THEN --存在ID缺少的情况  等于WHEN NOT MATCHED BY TARGET
+INSERT (iIden,sBillNo,sMaterialNo,nQty)
+VALUES(f.iIden,f.sBillNo,f.sMaterialNo,f.nQty)
+WHEN NOT MATCHED BY SOURCE THEN--存在ID多余的情况
+DELETE
+OUTPUT $action AS [操作类型]
+,Inserted.iIden AS [新增数据ID]
+,Deleted.iIden AS [删除数据ID];
+
+
+SELECT *
+FROM @tbNewTable
