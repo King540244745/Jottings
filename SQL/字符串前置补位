@@ -1,0 +1,24 @@
+IF OBJECT_ID('fnPadLeft') IS NOT NULL
+BEGIN
+    DROP FUNCTION fnPadLeft
+END
+GO
+
+CREATE FUNCTION fnPadLeft
+(
+@sTxt NVARCHAR(MAX)
+,@iTotal INT
+,@sPadding NVARCHAR(1)='0'
+)
+RETURNS NVARCHAR(MAX)
+AS
+BEGIN
+	
+	IF (ISNULL(@sPadding,'')='')
+	BEGIN
+	    SELECT @sPadding='0'
+	END
+
+    RETURN REPLICATE(@sPadding, @iTotal - LEN(@sTxt)) + @sTxt
+END
+GO
