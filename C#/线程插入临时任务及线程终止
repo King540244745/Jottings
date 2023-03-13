@@ -1,0 +1,65 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+class Program
+{
+    delegate void TempTask();
+
+    static Queue<TempTask> tempTasks = new Queue<TempTask>();
+
+    static void Main(string[] args)
+    {
+
+        var cts = new CancellationTokenSource();
+
+        ThreadPool.QueueUserWorkItem(_ => MyTask(cts.Token));
+
+        Console.WriteLine("Press 'Enter' to stop task");
+        Console.ReadKey();
+
+        while (Console.ReadKey().Key != ConsoleKey.Enter)
+        {
+            CreateTempTask();
+        }
+        // 取消任务
+        cts.Cancel();
+
+        Console.WriteLine("Task stopped");
+
+        Console.ReadKey();
+    }
+
+    static void MyTask(CancellationToken token)
+    {
+        Console.WriteLine("Task started");
+
+        while (!token.IsCancellationRequested)
+        {
+            Console.WriteLine("Task Run");
+            lock (tempTasks)
+            {
+                if (tempTasks.Count > 0)
+                {
+                    Thread.Sleep(100);
+                    var task = tempTasks.Dequeue();
+                    task();
+                }
+            }
+            Thread.Sleep(100);
+        }
+
+        Console.WriteLine("Task completed");
+    }
+
+    static void CreateTempTask()
+    {
+        lock (tempTasks)
+        {
+            tempTasks.Enqueue(() =>
+            {
+                Console.WriteLine("TempTask Run");
+            });
+        }
+    }
+}
