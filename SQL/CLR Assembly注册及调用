@@ -1,0 +1,52 @@
+C#
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+
+namespace SQLCLRAssembly
+{
+    public class HttpHelper
+    {
+        public static string Post(string sUrl, string sPpostData, int iTimeout = 30000)
+        {
+            byte[] postBytes = Encoding.UTF8.GetBytes(sPpostData);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(sUrl);
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            request.ContentLength = postBytes.Length;
+            request.Timeout = iTimeout; // 设置超时时间，单位为毫秒
+            Stream requestStream = request.GetRequestStream();
+            requestStream.Write(postBytes, 0, postBytes.Length);
+            requestStream.Close();
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            string responseText = reader.ReadToEnd();
+            reader.Close();
+            response.Close();
+
+            return responseText;
+        }
+    }
+}
+SQL
+--注册
+CREATE ASSEMBLY MESAssembly FROM 'D:\SQLCLRAssembly.dll' WITH PERMISSION_SET = EXTERNAL_ACCESS;
+--更新
+ALTER ASSEMBLY MESAssembly FROM 'D:\SQLCLRAssembly.dll' WITH PERMISSION_SET = UNSAFE;
+--删除
+DROP ASSEMBLY MESAssembly
+--调用
+CREATE FUNCTION fnMESSendPostRequest
+(
+@sUrl NVARCHAR(200)
+,@sPostData NVARCHAR(MAX)
+,@iTimeout INT = 30000
+)
+RETURNS NVARCHAR(MAX) WITH EXECUTE AS CALLER
+AS
+	EXTERNAL NAME [MESAssembly].[SQLCLRAssembly.HttpHelper].[Post]
+GO
